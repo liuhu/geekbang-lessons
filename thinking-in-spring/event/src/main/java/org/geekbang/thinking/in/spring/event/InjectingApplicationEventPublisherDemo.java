@@ -63,6 +63,9 @@ public class InjectingApplicationEventPublisherDemo implements ApplicationEventP
         // 启动 Spring 应用上下文
         context.refresh();
 
+        // 发布自定义 Spring 事件
+        context.publishEvent(new MySpringEvent("Hello,World"));
+
         // 关闭 Spring 应用上下文
         context.close();
     }
@@ -98,8 +101,9 @@ public class InjectingApplicationEventPublisherDemo implements ApplicationEventP
     }
 
     // TODO; 为什么获取不到自定义的 MySpringEvent 事件
+    // 答: 在 @PostConstruct 和 autoWare 回调的时候， @EventListener 注解还没生效
     @EventListener
     public void onEvent(ApplicationEvent event) {
-        System.out.printf("@EventListener [线程 ： %s] 监听到事件 : %s\n", Thread.currentThread().getName(), event);
+        System.out.printf("@EventListener2 [线程 ： %s] 监听到事件 : %s\n", Thread.currentThread().getName(), event);
     }
 }
