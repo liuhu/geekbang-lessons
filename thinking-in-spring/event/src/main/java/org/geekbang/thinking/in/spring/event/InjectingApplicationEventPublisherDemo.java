@@ -19,11 +19,11 @@ package org.geekbang.thinking.in.spring.event;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.ApplicationEventPublisherAware;
+import org.springframework.context.*;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 
 import javax.annotation.PostConstruct;
 
@@ -34,7 +34,7 @@ import javax.annotation.PostConstruct;
  * @since
  */
 public class InjectingApplicationEventPublisherDemo implements ApplicationEventPublisherAware,
-        ApplicationContextAware, BeanPostProcessor {
+        ApplicationContextAware {
 
     @Autowired
     private ApplicationEventPublisher applicationEventPublisher;
@@ -75,6 +75,11 @@ public class InjectingApplicationEventPublisherDemo implements ApplicationEventP
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException { // #2
-        applicationEventPublisher.publishEvent(new MySpringEvent("The event from ApplicationContextAware"));
+        applicationContext.publishEvent(new MySpringEvent("The event from ApplicationContextAware"));
+    }
+
+    @EventListener
+    public void onApplicationEventAsync(ApplicationEvent event) {
+        System.out.printf("@EventListener [线程 ： %s] 监听到事件 : %s\n", Thread.currentThread().getName(), event);
     }
 }
