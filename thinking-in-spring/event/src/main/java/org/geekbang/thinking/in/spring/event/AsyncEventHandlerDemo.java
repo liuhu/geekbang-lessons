@@ -46,6 +46,11 @@ public class AsyncEventHandlerDemo {
         // 1.添加自定义 Spring 事件监听器
         context.addApplicationListener(new MySpringEventListener());
 
+        // 1. 添加自定义 Spring 事件监听器，针对 MySpringEvent 故意抛出异常
+        context.addApplicationListener((ApplicationListener<MySpringEvent>) event -> {
+            throw new RuntimeException("故意抛出异常");
+        });
+
         // 2.启动 Spring 应用上下文
         context.refresh(); // 初始化 ApplicationEventMulticaster
 
@@ -63,26 +68,16 @@ public class AsyncEventHandlerDemo {
             simpleApplicationEventMulticaster.setTaskExecutor(taskExecutor);
 
             // 添加 ContextClosedEvent 事件处理
-            applicationEventMulticaster.addApplicationListener(new ApplicationListener<ContextClosedEvent>() {
-                @Override
-                public void onApplicationEvent(ContextClosedEvent event) {
-                    if (!taskExecutor.isShutdown()) {
-                        taskExecutor.shutdown();
-                    }
+            applicationEventMulticaster.addApplicationListener((ApplicationListener<ContextClosedEvent>) event -> {
+                if (!taskExecutor.isShutdown()) {
+                    taskExecutor.shutdown();
                 }
             });
 
-            simpleApplicationEventMulticaster.setErrorHandler(e -> {
-                System.err.println("当 Spring 事件异常时，原因：" + e.getMessage());
-            });
+            simpleApplicationEventMulticaster.setErrorHandler(e ->
+                    System.err.println("当 Spring 事件异常时，原因：" + e.getMessage())
+            );
         }
-
-        context.addApplicationListener(new ApplicationListener<MySpringEvent>() {
-            @Override
-            public void onApplicationEvent(MySpringEvent event) {
-                throw new RuntimeException("故意抛出异常");
-            }
-        });
 
         // 3. 发布自定义 Spring 事件
         context.publishEvent(new MySpringEvent("Hello,World"));
