@@ -16,6 +16,7 @@
  */
 package org.geekbang.thinking.in.spring.event;
 
+import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 
 /**
@@ -24,10 +25,10 @@ import org.springframework.context.ApplicationListener;
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @since
  */
-public class MySpringEventListener implements ApplicationListener<MySpringEvent> {
+public class MySpringEventListener implements ApplicationListener<ApplicationEvent> {
 
     @Override
-    public void onApplicationEvent(MySpringEvent event) {
+    public void onApplicationEvent(ApplicationEvent event) {
         System.out.printf("[线程 ： %s] 监听到事件 : %s\n", Thread.currentThread().getName(), event);
     }
 }

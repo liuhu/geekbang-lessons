@@ -60,7 +60,7 @@ public class HierarchicalSpringEventPropagateDemo {
 
     static class MyListener implements ApplicationListener<ApplicationContextEvent> {
 
-        private Set<ApplicationContextEvent> processedEvents = new LinkedHashSet<>();
+        private final Set<ApplicationContextEvent> processedEvents = new LinkedHashSet<>();
 
         @Override
         public void onApplicationEvent(ApplicationContextEvent event) {

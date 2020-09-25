@@ -18,12 +18,9 @@ package org.geekbang.thinking.in.spring.event;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.*;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
-import org.springframework.scheduling.annotation.Async;
 
 import javax.annotation.PostConstruct;
 
@@ -36,9 +33,11 @@ import javax.annotation.PostConstruct;
 public class InjectingApplicationEventPublisherDemo implements ApplicationEventPublisherAware,
         ApplicationContextAware {
 
+    // 通过依赖注入的方式获取 ApplicationEventPublisher
     @Autowired
     private ApplicationEventPublisher applicationEventPublisher;
 
+    // 通过依赖注入的方式获取 ApplicationContext
     @Autowired
     private ApplicationContext applicationContext;
 
@@ -68,18 +67,39 @@ public class InjectingApplicationEventPublisherDemo implements ApplicationEventP
         context.close();
     }
 
+    // 使用 ApplicationEventPublisherAware 获取 ApplicationEventPublisher 事件发布器
     @Override
     public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) { // #1
         applicationEventPublisher.publishEvent(new MySpringEvent("The event from ApplicationEventPublisherAware"));
     }
 
+    // 使用 ApplicationContextAware 获取 ApplicationContext， ApplicationContext 继承 ApplicationEventPublisher
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException { // #2
         applicationContext.publishEvent(new MySpringEvent("The event from ApplicationContextAware"));
     }
 
+    static class MySpringEvent extends ApplicationEvent {
+        public MySpringEvent(String message) {
+            super(message);
+        }
+
+        @Override
+        public String getSource() {
+            return (String) super.getSource();
+        }
+    }
+
+    static class MySpringEventListener implements ApplicationListener<ApplicationEvent> {
+        @Override
+        public void onApplicationEvent(ApplicationEvent event) {
+            System.out.printf("[线程 ： %s] 监听到事件 : %s\n", Thread.currentThread().getName(), event);
+        }
+    }
+
+    // TODO; 为什么获取不到自定义的 MySpringEvent 事件
     @EventListener
-    public void onApplicationEventAsync(ApplicationEvent event) {
+    public void onEvent(ApplicationEvent event) {
         System.out.printf("@EventListener [线程 ： %s] 监听到事件 : %s\n", Thread.currentThread().getName(), event);
     }
 }
